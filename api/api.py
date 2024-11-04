@@ -25,9 +25,12 @@ pipe.to(device)
 @app.get("/")
 def generate(prompt:str):
     with autocast(device):
-        image = pipe(prompt, guidance_scale=8.5).image[0]
+        image = pipe(prompt, guidance_scale=8.5).images[0]
 
     image.save("testimage.png")
-
-    return {"out":"hello world"}
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    imgstr = base64.b64encode(buffer.getvalue())
+    
+    return Response(content=imgstr, media_type = "image/png")
 
